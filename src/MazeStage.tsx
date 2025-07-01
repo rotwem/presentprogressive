@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { GazePoint } from './types';
+import { getFileUrl } from './config';
 
 interface MazeStageProps {
   faceDetected: boolean;
@@ -303,31 +304,31 @@ const MazeStage: React.FC<MazeStageProps> = ({
       <audio
         id="mazeAudio"
         loop
-        src="/maze_sound.mp3"
+        src={getFileUrl("/maze_sound.mp3")}
         style={{ display: 'none' }}
       />
       <audio
         id="noise-grey"
         loop
-        src="/noises/grey.mp3"
+        src={getFileUrl("/noises/grey.mp3")}
         style={{ display: 'none' }}
       />
       <audio
         id="noise-brown"
         loop
-        src="/noises/brown.mp3"
+        src={getFileUrl("/noises/brown.mp3")}
         style={{ display: 'none' }}
       />
       <audio
         id="noise-blue"
         loop
-        src="/noises/blue.mp3"
+        src={getFileUrl("/noises/blue.mp3")}
         style={{ display: 'none' }}
       />
       <audio
         id="noise-white"
         loop
-        src="/noises/white.mp3"
+        src={getFileUrl("/noises/white.mp3")}
         style={{ display: 'none' }}
       />
 
@@ -385,7 +386,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
           }}
         >
           <video 
-            src={currentMessage.imagePath} 
+            src={getFileUrl(currentMessage.imagePath)} 
             autoPlay
             loop
             muted

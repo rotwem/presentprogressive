@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { getFileUrl } from './config';
 
 interface OutroStageProps {
   onOutroComplete?: () => void;
@@ -35,7 +36,7 @@ const OutroStage: React.FC<OutroStageProps> = ({
         muted={false}
         onEnded={onOutroComplete}
       >
-        <source src="/credits.mp4" type="video/mp4" />
+        <source src={getFileUrl("/credits.mp4")} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>

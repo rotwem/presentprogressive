@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GazePoint } from './types';
+import { getFileUrl } from './config';
 
 interface NightimeStageProps {
   faceDetected: boolean;
@@ -230,7 +231,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
       {/* Thunder Sound */}
-      <audio ref={thunderRef} src="/thunder-307513.mp3" preload="auto" />
+      <audio ref={thunderRef} src={getFileUrl("/thunder-307513.mp3")} preload="auto" />
 
       {/* Video Background */}
       <video
@@ -249,7 +250,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
         loop
         muted={false}
       >
-        <source src="/nigitime_comp01.mp4" type="video/mp4" />
+        <source src={getFileUrl("/nigitime_comp01.mp4")} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -286,7 +287,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
             >
               {visibleImages[cell.id] && (
                 <img
-                  src={`/nightime_png/${cell.imageName}`}
+                  src={getFileUrl(`/nightime_png/${cell.imageName}`)}
                   alt={`Grid Image ${cell.row}-${cell.col}`}
                   style={{
                     position: 'absolute',

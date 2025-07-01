@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { GazePoint } from './types';
+import { getFileUrl } from './config';
 
 interface TestStageProps {
   faceDetected: boolean;
@@ -275,9 +276,9 @@ const TestStage: React.FC<TestStageProps> = ({
       backgroundColor: bgColor,
     }}>
       {/* Background Audio */}
-      <audio ref={audioRef} src="/circles.mp3" preload="auto" />
+      <audio ref={audioRef} src={getFileUrl("/circles.mp3")} preload="auto" />
       {/* Hover Audio */}
-      <audio ref={hoverAudioRef} src="/coin-flip-shimmer-85750.mp3" preload="auto" />
+      <audio ref={hoverAudioRef} src={getFileUrl("/coin-flip-shimmer-85750.mp3")} preload="auto" />
       {/* Video grid in the center */}
       <div style={{
         position: 'absolute',
@@ -313,7 +314,7 @@ const TestStage: React.FC<TestStageProps> = ({
               <div key={video.id} style={{ position: 'relative', margin: 0, padding: 0 }}>
                 <video
                   ref={video.ref}
-                  src={`/q_vids/${videoNumber}.mp4`}
+                  src={getFileUrl(`/q_vids/${videoNumber}.mp4`)}
                   style={{
                     // width: '11vw',
                     height: '25vh',

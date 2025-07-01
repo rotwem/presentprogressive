@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GazePoint } from './types';
+import { getFileUrl } from './config';
 
 interface MorningStageProps {
   faceDetected: boolean;
@@ -264,17 +265,17 @@ const MorningStage: React.FC<MorningStageProps> = ({
             display: videoFlag ? 'block' : 'none'
           }}
         >
-          <source src="/morning_full01.mp4" type="video/mp4" />
+          <source src={getFileUrl("/morning_full01.mp4")} type="video/mp4" />
         </video>
       </div>
 
       <audio 
         ref={audioRef}
-        src="/chirping-birds-ambience-217410.mp3"
+        src={getFileUrl("/chirping-birds-ambience-217410.mp3")}
       />
       <audio
         ref={hoverSoundRef}
-        src="/slow-ramp-up-96343.mp3"
+        src={getFileUrl("/slow-ramp-up-96343.mp3")}
         loop
       />
       

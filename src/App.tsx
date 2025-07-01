@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { FaceMesh } from '@mediapipe/face_mesh';
-import { Camera } from '@mediapipe/camera_utils';
+// Remove static MediaPipe imports - we'll load them dynamically
 import './App.css';
 
 // Import components and utilities
@@ -36,11 +35,19 @@ import {
   EMA_ALPHA
 } from './types';
 
+// Dynamic MediaPipe loading
+declare global {
+  interface Window {
+    FaceMesh: any;
+    Camera: any;
+  }
+}
+
 function App() {
   // Refs
   const cameraRef = useRef<CameraRef>(null);
-  const faceMeshRef = useRef<FaceMesh | null>(null);
-  const mediaPipeCameraRef = useRef<Camera | null>(null);
+  const faceMeshRef = useRef<any | null>(null);
+  const mediaPipeCameraRef = useRef<any | null>(null);
   const currentTargetIndexRef = useRef<number>(0); // Use ref for immediate updates
   const stageRef = useRef<Stage>('calibration');
   const calibrationPointsRef = useRef<GazePoint[]>([]);
@@ -69,8 +76,8 @@ function App() {
   // Diagnostic function to test MediaPipe availability
   const testMediaPipeAvailability = async () => {
     const diagnostics = {
-      faceMeshAvailable: typeof FaceMesh !== 'undefined',
-      cameraAvailable: typeof Camera !== 'undefined',
+      faceMeshAvailable: typeof window.FaceMesh !== 'undefined',
+      cameraAvailable: typeof window.Camera !== 'undefined',
       mediaDevicesAvailable: !!navigator.mediaDevices,
       isHttps: location.protocol === 'https:' || location.hostname === 'localhost',
       userAgent: navigator.userAgent,
@@ -97,12 +104,57 @@ function App() {
     return diagnostics;
   };
 
+  // Load MediaPipe libraries dynamically
+  const loadMediaPipeLibraries = async (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Check if already loaded
+      if (window.FaceMesh && window.Camera) {
+        console.log('MediaPipe libraries already loaded');
+        resolve(true);
+        return;
+      }
+
+      console.log('Loading MediaPipe libraries dynamically...');
+      
+      // Load FaceMesh
+      const faceMeshScript = document.createElement('script');
+      faceMeshScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@latest/face_mesh.js';
+      faceMeshScript.onload = () => {
+        console.log('FaceMesh loaded successfully');
+        
+        // Load Camera utils
+        const cameraScript = document.createElement('script');
+        cameraScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@latest/camera_utils.js';
+        cameraScript.onload = () => {
+          console.log('Camera utils loaded successfully');
+          resolve(true);
+        };
+        cameraScript.onerror = () => {
+          console.error('Failed to load Camera utils');
+          resolve(false);
+        };
+        document.head.appendChild(cameraScript);
+      };
+      faceMeshScript.onerror = () => {
+        console.error('Failed to load FaceMesh');
+        resolve(false);
+      };
+      document.head.appendChild(faceMeshScript);
+    });
+  };
+
   // Initialize MediaPipe with retry mechanism
   const initializeMediaPipe = useCallback(async (retryCount = 0) => {
     const maxRetries = 2;
     
     try {
       console.log(`Initializing MediaPipe FaceMesh... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+      
+      // Load MediaPipe libraries first
+      const librariesLoaded = await loadMediaPipeLibraries();
+      if (!librariesLoaded) {
+        throw new Error('Failed to load MediaPipe libraries from CDN');
+      }
       
       // Run diagnostics first
       const diagnostics = await testMediaPipeAvailability();
@@ -132,8 +184,8 @@ function App() {
         try {
           console.log(`Trying source: ${cdnBase}`);
           
-          faceMesh = new FaceMesh({
-            locateFile: (file) => {
+          faceMesh = new window.FaceMesh({
+            locateFile: (file: string) => {
               const url = `${cdnBase}${file}`;
               console.log(`Loading MediaPipe file: ${url}`);
               return url;
@@ -227,7 +279,7 @@ function App() {
         throw new Error('Camera access requires HTTPS. Please use a secure connection.');
       }
       
-      const camera = new Camera(videoElement, {
+              const camera = new window.Camera(videoElement, {
         onFrame: async () => {
           if (videoElement && faceMeshRef.current) {
             try {
@@ -621,7 +673,7 @@ function App() {
             <p>Protocol: {location.protocol}</p>
             <p>Hostname: {location.hostname}</p>
             <p>User Agent: {navigator.userAgent.substring(0, 100)}...</p>
-            <p>MediaPipe Available: {typeof FaceMesh !== 'undefined' ? 'Yes' : 'No'}</p>
+            <p>MediaPipe Available: {typeof window.FaceMesh !== 'undefined' ? 'Yes' : 'No'}</p>
             <p>Camera Available: {navigator.mediaDevices ? 'Yes' : 'No'}</p>
           </div>
           <button onClick={() => window.location.reload()}>Reload Page</button>

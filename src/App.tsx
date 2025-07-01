@@ -71,14 +71,8 @@ function App() {
     try {
       console.log('Initializing MediaPipe FaceMesh...');
       
-      // Check if we're on HTTPS
-      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-        throw new Error('Camera access requires HTTPS');
-      }
-      
       const faceMesh = new FaceMesh({
         locateFile: (file) => {
-          console.log('Loading MediaPipe file:', file);
           return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
         }
       });
@@ -98,11 +92,7 @@ function App() {
       await startCamera();
     } catch (err) {
       console.error('MediaPipe initialization error:', err);
-      if (err instanceof Error && err.message.includes('HTTPS')) {
-        setError('Camera access requires HTTPS. Please use a secure connection.');
-      } else {
-        setError('Failed to initialize eye tracking. Please refresh the page and allow camera permissions.');
-      }
+      setError('Failed to initialize eye tracking. Please refresh the page.');
     }
   }, []);
 
@@ -111,19 +101,8 @@ function App() {
     try {
       console.log('Starting camera...');
       
-      // Check camera permissions first
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: { ideal: 640 }, 
-          height: { ideal: 480 } 
-        } 
-      });
-      
       const videoElement = cameraRef.current?.videoElement;
       if (videoElement && faceMeshRef.current) {
-        // Set the video stream
-        videoElement.srcObject = stream;
-        
         const camera = new Camera(videoElement, {
           onFrame: async () => {
             if (videoElement && faceMeshRef.current) {
@@ -140,13 +119,7 @@ function App() {
       }
     } catch (err) {
       console.error('Camera error:', err);
-      if (err instanceof Error && err.name === 'NotAllowedError') {
-        setError('Camera access denied. Please allow camera permissions and refresh the page.');
-      } else if (err instanceof Error && err.name === 'NotFoundError') {
-        setError('No camera found. Please connect a camera and refresh the page.');
-      } else {
-        setError('Camera error: ' + (err instanceof Error ? err.message : 'Unknown error'));
-      }
+      setError('Camera access denied. Please allow camera permissions and refresh.');
     }
   }, []);
 
@@ -496,61 +469,10 @@ function App() {
   if (error) {
     return (
       <div className="app">
-        <div className="error-message" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          textAlign: 'center',
-          padding: '20px',
-          backgroundColor: '#f8f9fa',
-          color: '#333'
-        }}>
-          <h3 style={{ color: '#dc3545', marginBottom: '20px' }}>Error</h3>
-          <p style={{ marginBottom: '30px', maxWidth: '500px', lineHeight: '1.6' }}>{error}</p>
-          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button 
-              onClick={() => {
-                setError('');
-                setIsInitialized(false);
-                initializeMediaPipe();
-              }}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
-            >
-              Retry
-            </button>
-            <button 
-              onClick={() => window.location.reload()}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontSize: '16px'
-              }}
-            >
-              Reload Page
-            </button>
-          </div>
-          <div style={{ marginTop: '30px', fontSize: '14px', color: '#666' }}>
-            <p>Make sure to:</p>
-            <ul style={{ textAlign: 'left', display: 'inline-block' }}>
-              <li>Allow camera permissions when prompted</li>
-              <li>Use a modern browser (Chrome, Firefox, Safari)</li>
-              <li>Have a working camera connected</li>
-            </ul>
-          </div>
+        <div className="error-message">
+          <h3>Error</h3>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Reload Page</button>
         </div>
       </div>
     );

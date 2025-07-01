@@ -66,10 +66,44 @@ function App() {
 
   const targetKeys = Object.keys(CALIBRATION_TARGETS) as CalibrationTarget[];
 
+  // Diagnostic function to test MediaPipe availability
+  const testMediaPipeAvailability = async () => {
+    const diagnostics = {
+      faceMeshAvailable: typeof FaceMesh !== 'undefined',
+      cameraAvailable: typeof Camera !== 'undefined',
+      mediaDevicesAvailable: !!navigator.mediaDevices,
+      isHttps: location.protocol === 'https:' || location.hostname === 'localhost',
+      userAgent: navigator.userAgent,
+      cdnTestResults: [] as string[]
+    };
+
+    // Test CDN connectivity
+    const testUrls = [
+      'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh_solution_wasm_bin.js',
+      'https://unpkg.com/@mediapipe/face_mesh@latest/face_mesh_solution_wasm_bin.js',
+      'https://cdn.skypack.dev/@mediapipe/face_mesh/face_mesh_solution_wasm_bin.js'
+    ];
+
+    for (const url of testUrls) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        diagnostics.cdnTestResults.push(`${url}: ${response.ok ? 'OK' : 'Failed'}`);
+      } catch (error) {
+        diagnostics.cdnTestResults.push(`${url}: Error - ${error instanceof Error ? error.message : 'Unknown'}`);
+      }
+    }
+
+    console.log('MediaPipe Diagnostics:', diagnostics);
+    return diagnostics;
+  };
+
   // Initialize MediaPipe
   const initializeMediaPipe = useCallback(async () => {
     try {
       console.log('Initializing MediaPipe FaceMesh...');
+      
+      // Run diagnostics first
+      const diagnostics = await testMediaPipeAvailability();
       
       // Check if we're on HTTPS (required for camera access)
       if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
@@ -153,6 +187,10 @@ function App() {
       } else {
         errorMessage += 'Please refresh the page and try again.';
       }
+      
+      // Add diagnostic info to console for debugging
+      console.error('Full error details:', err);
+      console.error('Check browser console for MediaPipe diagnostics');
       
       setError(errorMessage);
     }

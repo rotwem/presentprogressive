@@ -195,6 +195,15 @@ function App() {
       // Run diagnostics first
       const diagnostics = await testMediaPipeAvailability();
       
+      // Test if MediaPipe files are accessible
+      console.log('Testing MediaPipe file accessibility...');
+      try {
+        const testResponse = await fetch('/mediapipe/face_mesh_solution_wasm_bin.js', { method: 'HEAD' });
+        console.log('MediaPipe file accessibility test:', testResponse.ok ? 'SUCCESS' : 'FAILED');
+      } catch (error) {
+        console.error('MediaPipe file accessibility test failed:', error);
+      }
+      
       // Check if we're on HTTPS (required for camera access)
       if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
         throw new Error('Camera access requires HTTPS. Please use a secure connection.');
@@ -315,16 +324,19 @@ function App() {
         throw new Error('Camera access requires HTTPS. Please use a secure connection.');
       }
       
-              const camera = new window.Camera(videoElement, {
-        onFrame: async () => {
-          if (videoElement && faceMeshRef.current) {
-            try {
-              await faceMeshRef.current.send({ image: videoElement });
-            } catch (frameError) {
-              console.warn('Frame processing error:', frameError);
+                      const camera = new window.Camera(videoElement, {
+          onFrame: async () => {
+            if (videoElement && faceMeshRef.current) {
+              try {
+                console.log('Sending frame to MediaPipe...');
+                await faceMeshRef.current.send({ image: videoElement });
+              } catch (frameError) {
+                console.warn('Frame processing error:', frameError);
+              }
+            } else {
+              console.log('Video element or faceMesh not ready for frame processing');
             }
-          }
-        },
+          },
         width: 640,
         height: 480
       });
@@ -357,10 +369,15 @@ function App() {
 
   // MediaPipe results handler
   const onResults = useCallback((results: any) => {
+    console.log('onResults called with:', results);
+    
     const canvasElement = cameraRef.current?.canvasElement;
     const videoElement = cameraRef.current?.videoElement;
     
-    if (!canvasElement || !videoElement) return;
+    if (!canvasElement || !videoElement) {
+      console.log('Canvas or video element not found');
+      return;
+    }
 
     const ctx = canvasElement.getContext('2d');
     if (!ctx) return;
@@ -402,6 +419,7 @@ function App() {
     }
 
     if (landmarks && landmarks.length >= 468) {
+      console.log('Face detected with landmarks:', landmarks.length);
       setFaceDetected(true);
       
       // Draw eye landmarks only during calibration
@@ -498,6 +516,7 @@ function App() {
       // Blink detection
       handleBlinkDetection(emaEarRef.current);
     } else {
+      console.log('No face detected in results');
       setFaceDetected(false);
     }
   }, [calibrationRawGazePoints.length, stage]);

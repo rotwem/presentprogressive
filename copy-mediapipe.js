@@ -2,13 +2,15 @@ import { copyFileSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
 const sourceDir = './node_modules/@mediapipe/face_mesh';
-const targetDir = './public/mediapipe';
+const publicTargetDir = './public/mediapipe';
+const distTargetDir = './dist/mediapipe';
 
-// Create target directory if it doesn't exist
+// Create target directories if they don't exist
 try {
-  mkdirSync(targetDir, { recursive: true });
+  mkdirSync(publicTargetDir, { recursive: true });
+  mkdirSync(distTargetDir, { recursive: true });
 } catch (error) {
-  console.log('Target directory already exists or could not be created');
+  console.log('Target directories already exist or could not be created');
 }
 
 // Copy files recursively
@@ -30,8 +32,13 @@ function copyDirectory(src, dest) {
 }
 
 try {
-  copyDirectory(sourceDir, targetDir);
-  console.log('MediaPipe files copied successfully');
+  // Copy to public directory (for development)
+  copyDirectory(sourceDir, publicTargetDir);
+  console.log('MediaPipe files copied to public directory successfully');
+  
+  // Copy to dist directory (for production deployment)
+  copyDirectory(sourceDir, distTargetDir);
+  console.log('MediaPipe files copied to dist directory successfully');
 } catch (error) {
   console.error('Error copying MediaPipe files:', error);
 } 

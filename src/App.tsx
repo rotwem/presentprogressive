@@ -115,8 +115,9 @@ function App() {
         setError('MediaPipe initialization timed out. Please check your internet connection and refresh.');
       }, 30000); // 30 second timeout
       
-      // Try multiple CDN sources for better reliability
-      const cdnSources = [
+      // Try multiple sources for better reliability (local first, then CDN)
+      const sources = [
+        '/mediapipe/', // Local files copied during build
         'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/',
         'https://unpkg.com/@mediapipe/face_mesh@latest/',
         'https://cdn.skypack.dev/@mediapipe/face_mesh/'
@@ -125,7 +126,7 @@ function App() {
       let faceMesh = null;
       let lastError = null;
       
-      for (const cdnBase of cdnSources) {
+      for (const cdnBase of sources) {
         try {
           console.log(`Trying CDN: ${cdnBase}`);
           

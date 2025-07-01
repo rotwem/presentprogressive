@@ -116,30 +116,66 @@ function App() {
 
       console.log('Loading MediaPipe libraries dynamically...');
       
-      // Load FaceMesh
-      const faceMeshScript = document.createElement('script');
-      faceMeshScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@latest/face_mesh.js';
-      faceMeshScript.onload = () => {
-        console.log('FaceMesh loaded successfully');
-        
-        // Load Camera utils
-        const cameraScript = document.createElement('script');
-        cameraScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@latest/camera_utils.js';
-        cameraScript.onload = () => {
-          console.log('Camera utils loaded successfully');
-          resolve(true);
-        };
-        cameraScript.onerror = () => {
-          console.error('Failed to load Camera utils');
+      // Try multiple CDN sources for FaceMesh
+      const faceMeshSources = [
+        'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@latest/face_mesh.js',
+        'https://unpkg.com/@mediapipe/face_mesh@latest/face_mesh.js',
+        '/mediapipe/face_mesh.js' // Local fallback
+      ];
+      
+      const cameraSources = [
+        'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@latest/camera_utils.js',
+        'https://unpkg.com/@mediapipe/camera_utils@latest/camera_utils.js'
+      ];
+      
+      let faceMeshLoaded = false;
+      let cameraLoaded = false;
+      
+      const tryLoadFaceMesh = (index = 0) => {
+        if (index >= faceMeshSources.length) {
+          console.error('All FaceMesh sources failed');
           resolve(false);
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = faceMeshSources[index];
+        script.onload = () => {
+          console.log(`FaceMesh loaded successfully from: ${faceMeshSources[index]}`);
+          faceMeshLoaded = true;
+          if (cameraLoaded) resolve(true);
         };
-        document.head.appendChild(cameraScript);
+        script.onerror = () => {
+          console.warn(`Failed to load FaceMesh from: ${faceMeshSources[index]}`);
+          tryLoadFaceMesh(index + 1);
+        };
+        document.head.appendChild(script);
       };
-      faceMeshScript.onerror = () => {
-        console.error('Failed to load FaceMesh');
-        resolve(false);
+      
+      const tryLoadCamera = (index = 0) => {
+        if (index >= cameraSources.length) {
+          console.error('All Camera sources failed');
+          resolve(false);
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = cameraSources[index];
+        script.onload = () => {
+          console.log(`Camera utils loaded successfully from: ${cameraSources[index]}`);
+          cameraLoaded = true;
+          if (faceMeshLoaded) resolve(true);
+        };
+        script.onerror = () => {
+          console.warn(`Failed to load Camera utils from: ${cameraSources[index]}`);
+          tryLoadCamera(index + 1);
+        };
+        document.head.appendChild(script);
       };
-      document.head.appendChild(faceMeshScript);
+      
+      // Start loading both libraries
+      tryLoadFaceMesh();
+      tryLoadCamera();
     });
   };
 

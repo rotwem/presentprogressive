@@ -24,7 +24,10 @@ dist-ssr
 *.sw?
 
 
-public/
+# Ignore everything in public except mediapipe folder
+public/*
+!public/mediapipe/
+!public/mediapipe/**
 r2_backup/
 *.mp4
 *.mov

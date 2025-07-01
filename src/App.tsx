@@ -71,28 +71,90 @@ function App() {
     try {
       console.log('Initializing MediaPipe FaceMesh...');
       
-      const faceMesh = new FaceMesh({
-        locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-        }
-      });
+      // Check if we're on HTTPS (required for camera access)
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        throw new Error('Camera access requires HTTPS. Please use a secure connection.');
+      }
+      
+      // Add timeout for initialization
+      const initTimeout = setTimeout(() => {
+        setError('MediaPipe initialization timed out. Please check your internet connection and refresh.');
+      }, 30000); // 30 second timeout
+      
+      // Try multiple CDN sources for better reliability
+      const cdnSources = [
+        'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/',
+        'https://unpkg.com/@mediapipe/face_mesh@latest/',
+        'https://cdn.skypack.dev/@mediapipe/face_mesh/'
+      ];
+      
+      let faceMesh = null;
+      let lastError = null;
+      
+      for (const cdnBase of cdnSources) {
+        try {
+          console.log(`Trying CDN: ${cdnBase}`);
+          
+          faceMesh = new FaceMesh({
+            locateFile: (file) => {
+              const url = `${cdnBase}${file}`;
+              console.log(`Loading MediaPipe file: ${url}`);
+              return url;
+            }
+          });
 
-      faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      });
+          // Test if the model loads by setting options
+          faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+          });
+
+          console.log(`Successfully initialized with CDN: ${cdnBase}`);
+          break;
+        } catch (cdnError) {
+          console.warn(`Failed to initialize with CDN ${cdnBase}:`, cdnError);
+          lastError = cdnError;
+          continue;
+        }
+      }
+      
+      if (!faceMesh) {
+        clearTimeout(initTimeout);
+        throw new Error(`All CDN sources failed. Last error: ${lastError instanceof Error ? lastError.message : 'Unknown error'}`);
+      }
 
       faceMesh.onResults(onResults);
       faceMeshRef.current = faceMesh;
       
+      clearTimeout(initTimeout);
       console.log('MediaPipe FaceMesh initialized successfully');
       setIsInitialized(true);
       await startCamera();
     } catch (err) {
       console.error('MediaPipe initialization error:', err);
-      setError('Failed to initialize eye tracking. Please refresh the page.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to initialize eye tracking. ';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('CDN')) {
+          errorMessage += 'Network issues detected. Please check your internet connection and try again.';
+        } else if (err.message.includes('camera') || err.message.includes('permission')) {
+          errorMessage += 'Camera access denied. Please allow camera permissions and refresh.';
+        } else if (err.message.includes('model') || err.message.includes('load')) {
+          errorMessage += 'Model loading failed. Please refresh the page and try again.';
+        } else if (err.message.includes('timed out')) {
+          errorMessage += 'Initialization timed out. Please check your internet connection and refresh.';
+        } else {
+          errorMessage += `Error: ${err.message}`;
+        }
+      } else {
+        errorMessage += 'Please refresh the page and try again.';
+      }
+      
+      setError(errorMessage);
     }
   }, []);
 
@@ -102,24 +164,56 @@ function App() {
       console.log('Starting camera...');
       
       const videoElement = cameraRef.current?.videoElement;
-      if (videoElement && faceMeshRef.current) {
-        const camera = new Camera(videoElement, {
-          onFrame: async () => {
-            if (videoElement && faceMeshRef.current) {
-              await faceMeshRef.current.send({ image: videoElement });
-            }
-          },
-          width: 640,
-          height: 480
-        });
-        
-        mediaPipeCameraRef.current = camera;
-        await camera.start();
-        console.log('Camera started successfully - ready for calibration');
+      if (!videoElement) {
+        throw new Error('Video element not found');
       }
+      
+      if (!faceMeshRef.current) {
+        throw new Error('FaceMesh not initialized');
+      }
+      
+      // Check if we're on HTTPS (required for camera access)
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        throw new Error('Camera access requires HTTPS. Please use a secure connection.');
+      }
+      
+      const camera = new Camera(videoElement, {
+        onFrame: async () => {
+          if (videoElement && faceMeshRef.current) {
+            try {
+              await faceMeshRef.current.send({ image: videoElement });
+            } catch (frameError) {
+              console.warn('Frame processing error:', frameError);
+            }
+          }
+        },
+        width: 640,
+        height: 480
+      });
+      
+      mediaPipeCameraRef.current = camera;
+      await camera.start();
+      console.log('Camera started successfully - ready for calibration');
     } catch (err) {
       console.error('Camera error:', err);
-      setError('Camera access denied. Please allow camera permissions and refresh.');
+      
+      let errorMessage = 'Camera access denied. ';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('HTTPS')) {
+          errorMessage += 'Camera access requires HTTPS. Please use a secure connection.';
+        } else if (err.message.includes('permission') || err.message.includes('denied')) {
+          errorMessage += 'Please allow camera permissions and refresh.';
+        } else if (err.message.includes('not found')) {
+          errorMessage += 'Camera not found. Please check your device has a camera.';
+        } else {
+          errorMessage += `Error: ${err.message}`;
+        }
+      } else {
+        errorMessage += 'Please allow camera permissions and refresh.';
+      }
+      
+      setError(errorMessage);
     }
   }, []);
 
@@ -472,6 +566,14 @@ function App() {
         <div className="error-message">
           <h3>Error</h3>
           <p>{error}</p>
+          <div style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>
+            <p>Debug Info:</p>
+            <p>Protocol: {location.protocol}</p>
+            <p>Hostname: {location.hostname}</p>
+            <p>User Agent: {navigator.userAgent.substring(0, 100)}...</p>
+            <p>MediaPipe Available: {typeof FaceMesh !== 'undefined' ? 'Yes' : 'No'}</p>
+            <p>Camera Available: {navigator.mediaDevices ? 'Yes' : 'No'}</p>
+          </div>
           <button onClick={() => window.location.reload()}>Reload Page</button>
         </div>
       </div>
@@ -484,7 +586,12 @@ function App() {
       return (
         <div className="loading">
           <div className="spinner"></div>
-          Initializing eye tracking system...
+          <div>Initializing eye tracking system...</div>
+          <div style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>
+            <p>Loading MediaPipe models from CDN...</p>
+            <p>Protocol: {location.protocol}</p>
+            <p>Hostname: {location.hostname}</p>
+          </div>
         </div>
       );
     }

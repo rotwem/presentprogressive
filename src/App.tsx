@@ -97,10 +97,12 @@ function App() {
     return diagnostics;
   };
 
-  // Initialize MediaPipe
-  const initializeMediaPipe = useCallback(async () => {
+  // Initialize MediaPipe with retry mechanism
+  const initializeMediaPipe = useCallback(async (retryCount = 0) => {
+    const maxRetries = 2;
+    
     try {
-      console.log('Initializing MediaPipe FaceMesh...');
+      console.log(`Initializing MediaPipe FaceMesh... (attempt ${retryCount + 1}/${maxRetries + 1})`);
       
       // Run diagnostics first
       const diagnostics = await testMediaPipeAvailability();
@@ -128,7 +130,7 @@ function App() {
       
       for (const cdnBase of sources) {
         try {
-          console.log(`Trying CDN: ${cdnBase}`);
+          console.log(`Trying source: ${cdnBase}`);
           
           faceMesh = new FaceMesh({
             locateFile: (file) => {
@@ -146,11 +148,11 @@ function App() {
             minTrackingConfidence: 0.5
           });
 
-          console.log(`Successfully initialized with CDN: ${cdnBase}`);
+          console.log(`Successfully initialized with source: ${cdnBase}`);
           break;
-        } catch (cdnError) {
-          console.warn(`Failed to initialize with CDN ${cdnBase}:`, cdnError);
-          lastError = cdnError;
+        } catch (sourceError) {
+          console.warn(`Failed to initialize with source ${cdnBase}:`, sourceError);
+          lastError = sourceError;
           continue;
         }
       }
@@ -192,6 +194,15 @@ function App() {
       // Add diagnostic info to console for debugging
       console.error('Full error details:', err);
       console.error('Check browser console for MediaPipe diagnostics');
+      
+      // Retry if we haven't exceeded max retries
+      if (retryCount < maxRetries) {
+        console.log(`Retrying initialization in 2 seconds... (${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => {
+          initializeMediaPipe(retryCount + 1);
+        }, 2000);
+        return;
+      }
       
       setError(errorMessage);
     }

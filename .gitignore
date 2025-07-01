@@ -25,3 +25,7 @@ dist-ssr
 
 
 public/
+r2_backup/
+*.mp4
+*.mov
+*.psd

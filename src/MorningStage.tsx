@@ -10,6 +10,11 @@ interface MorningStageProps {
   blinkDetected: boolean;
 }
 
+interface SentencePosition {
+  x: number;
+  y: number;
+}
+
 const MorningStage: React.FC<MorningStageProps> = ({
   faceDetected,
   mappedPoint,
@@ -23,13 +28,36 @@ const MorningStage: React.FC<MorningStageProps> = ({
   const [videoFlag, setVideoFlag] = useState(false);
   const [gazedIndex, setGazedIndex] = useState<number | null>(null);
   const [gazeStartTime, setGazeStartTime] = useState<number | null>(null);
-  const [visibleSentences, setVisibleSentences] = useState<boolean[]>([]);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [letterSpacing, setLetterSpacing] = useState<number[]>([]); // Track letter spacing for each sentence
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [currentSentencePosition, setCurrentSentencePosition] = useState<SentencePosition>({ x: 50, y: 50 });
+  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
-  const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const sentenceRef = useRef<HTMLSpanElement | null>(null);
   const fontColor = videoFlag ? 'white' : 'black';
+
+  const Morning_MSG = [
+    "You are waking up.",
+    "it is another day.",
+    "just like every day.",
+    "You are not ready.",
+    "You are snoozing.",
+    "Again.",
+    "You are checking your phone.",
+    "it is a bad idea.",
+    "You are scrolling.",
+    "Still scrolling.",
+    "You are trying to stand.",
+    "You are sitting back down.",
+    "You are brushing your teeth.",
+    "You are staring at the mirror.",
+    "It is not answering.",
+    "You are dressed.",
+    "Sort of.",
+    "You are getting out.",
+    "The day is starting.",
+  ];
 
   // Initialize end time when stage starts
   useEffect(() => {
@@ -73,59 +101,72 @@ const MorningStage: React.FC<MorningStageProps> = ({
     }
   }, [blinkDetected]);
 
+  // Generate random position for sentence
+  const generateRandomPosition = (sentenceIndex: number): SentencePosition => {
+    // Get the sentence text
+    const sentence = Morning_MSG[sentenceIndex];
+    
+    // Create a temporary element to measure text dimensions
+    const tempElement = document.createElement('span');
+    tempElement.style.fontSize = '6vw';
+    tempElement.style.fontWeight = 'bold';
+    tempElement.style.fontFamily = 'Helvetica, Arial, sans-serif';
+    tempElement.style.whiteSpace = 'nowrap';
+    tempElement.style.position = 'absolute';
+    tempElement.style.visibility = 'hidden';
+    tempElement.textContent = sentence;
+    
+    // Add to DOM temporarily to measure
+    document.body.appendChild(tempElement);
+    const textWidth = tempElement.offsetWidth;
+    const textHeight = tempElement.offsetHeight;
+    document.body.removeChild(tempElement);
+    
+    // Calculate safe margins based on text size
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Convert text dimensions to percentages
+    const textWidthPercent = (textWidth / viewportWidth) * 100;
+    const textHeightPercent = (textHeight / viewportHeight) * 100;
+    
+    // Add extra margin for letter spacing effect (can expand up to 20px per character)
+    const maxLetterSpacing = 20;
+    const maxExpansionPercent = ((maxLetterSpacing * sentence.length) / viewportWidth) * 100;
+    const totalWidthPercent = textWidthPercent + maxExpansionPercent;
+    
+    // Calculate safe ranges
+    const minX = totalWidthPercent / 2; // Half the text width from left edge
+    const maxX = 100 - (totalWidthPercent / 2); // Half the text width from right edge
+    const minY = textHeightPercent / 2; // Half the text height from top edge
+    const maxY = 100 - (textHeightPercent / 2); // Half the text height from bottom edge
+    
+    // Generate random position within safe bounds
+    const x = minX + Math.random() * (maxX - minX);
+    const y = minY + Math.random() * (maxY - minY);
+    
+    return { x, y };
+  };
+
+  // Effect to show next sentence when currentSentenceIndex changes
+  useEffect(() => {
+    console.log(`useEffect triggered: currentSentenceIndex = ${currentSentenceIndex}`);
+    if (currentSentenceIndex < Morning_MSG.length) {
+      console.log(`Showing sentence ${currentSentenceIndex}: "${Morning_MSG[currentSentenceIndex]}"`);
+      setCurrentSentencePosition(generateRandomPosition(currentSentenceIndex));
+      setLetterSpacing(0);
+      setGazedIndex(null);
+      setGazeStartTime(null);
+      setIsAdvancing(false); // Reset the advancing flag
+    }
+  }, [currentSentenceIndex]);
+
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
-  const Morning_MSG = [
-    "You are waking up.",
-    "it is another day.",
-    "just like every day.",
-    "You are not ready.",
-    "You are snoozing.",
-    "Again.",
-    "You are checking your phone.",
-    "it is a bad idea.",
-    "You are scrolling.",
-    "Still scrolling.",
-    "You are trying to stand.",
-    "You are sitting back down.",
-    "You are brushing your teeth.",
-    "You are staring at the mirror.",
-    "It is not answering.",
-    "You are boiling water.",
-    "drinking coffee give you migraines.",
-    "You are dressed.",
-    "Sort of.",
-    "You are getting out.",
-    "The day is starting.",
-  ];
-
-  // Split messages into sentences and add proper spacing
-  const sentences = Morning_MSG.map(msg => msg.trim()).filter(msg => msg.length > 0);
-
-  // Initialize visible sentences array and letter spacing
-  useEffect(() => {
-    setVisibleSentences(new Array(sentences.length).fill(true));
-    setLetterSpacing(new Array(sentences.length).fill(0)); // Initialize with 0 letter spacing
-  }, [sentences.length]);
-
-  // Add effect to cycle through messages
-  useEffect(() => {
-    const messageInterval = setInterval(() => {
-      setCurrentMessageIndex(prev => {
-        if (prev < Morning_MSG.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
-    }, 3000); // Change message every 3 seconds
-
-    return () => clearInterval(messageInterval);
-  }, []);
 
   // Initialize ambient sound
   useEffect(() => {
@@ -146,73 +187,52 @@ const MorningStage: React.FC<MorningStageProps> = ({
     };
   }, []);
 
-  // Effect to check gaze intersection with sentences
+  // Effect to check gaze intersection with current sentence
   useEffect(() => {
-    if (!faceDetected || !mappedPoint) {
+    if (!faceDetected || !mappedPoint || !sentenceRef.current || currentSentenceIndex >= Morning_MSG.length) {
       setGazedIndex(null);
       setGazeStartTime(null);
-      // Reset letter spacing when no face detected
-      setLetterSpacing(new Array(sentences.length).fill(0));
+      setLetterSpacing(0);
       return;
     }
 
-    let foundIntersection = false;
+    const rect = sentenceRef.current.getBoundingClientRect();
+    const isIntersecting = 
+      mappedPoint.x >= rect.left &&
+      mappedPoint.x <= rect.right &&
+      mappedPoint.y >= rect.top &&
+      mappedPoint.y <= rect.bottom;
 
-    // Check each sentence for intersection
-    sentenceRefs.current.forEach((ref, index) => {
-      if (!ref || !visibleSentences[index]) return;
-      
-      const rect = ref.getBoundingClientRect();
-      const isIntersecting = 
-        mappedPoint.x >= rect.left &&
-        mappedPoint.x <= rect.right &&
-        mappedPoint.y >= rect.top &&
-        mappedPoint.y <= rect.bottom;
-
-      if (isIntersecting) {
-        if (gazedIndex !== index) {
-          // Started gazing at a new sentence
-          setGazedIndex(index);
-          setGazeStartTime(Date.now());
-          // Don't reset letter spacing here - let it continue from where it was
-        } else if (gazeStartTime) {
-          // Continue gazing at the same sentence
-          const gazeDuration = Date.now() - gazeStartTime;
-          
-          // Update letter spacing based on hover time (0 to 3000ms)
-          const spacingProgress = Math.min(gazeDuration / 3000, 1); // 0 to 1
-          const maxSpacing = 20; // Maximum letter spacing in pixels
-          const currentSpacing = spacingProgress * maxSpacing;
-          
-          setLetterSpacing(prev => {
-            const newSpacing = [...prev];
-            newSpacing[index] = currentSpacing;
-            return newSpacing;
-          });
-          
-          if (gazeDuration >= 3000) { // 3 seconds
-            // Remove the sentence
-            setVisibleSentences(prev => {
-              const newVisible = [...prev];
-              newVisible[index] = false;
-              return newVisible;
-            });
-            setGazedIndex(null);
-            setGazeStartTime(null);
-          }
+    if (isIntersecting) {
+      if (gazedIndex === null) {
+        // Started gazing at the sentence
+        setGazedIndex(currentSentenceIndex);
+        setGazeStartTime(Date.now());
+      } else if (gazeStartTime) {
+        // Continue gazing at the sentence
+        const gazeDuration = Date.now() - gazeStartTime;
+        
+        // Update letter spacing based on hover time (0 to 2000ms)
+        const spacingProgress = Math.min(gazeDuration / 2000, 1); // 0 to 1
+        const maxSpacing = 20; // Maximum letter spacing in pixels
+        const currentSpacing = spacingProgress * maxSpacing;
+        
+        setLetterSpacing(currentSpacing);
+        
+        if (gazeDuration >= 2000 && !isAdvancing) { // 2 seconds
+          // Remove the sentence and advance to next one
+          console.log(`Advancing from sentence ${currentSentenceIndex} to ${currentSentenceIndex + 1}`);
+          setIsAdvancing(true);
+          setCurrentSentenceIndex(prev => prev + 1);
         }
-        foundIntersection = true;
       }
-    });
-
-    // Reset if no intersection found
-    if (!foundIntersection) {
+    } else {
+      // Not intersecting - reset gaze state
       setGazedIndex(null);
       setGazeStartTime(null);
-      // Reset letter spacing when not hovering
-      setLetterSpacing(new Array(sentences.length).fill(0));
+      setLetterSpacing(0);
     }
-  }, [faceDetected, mappedPoint.x, mappedPoint.y, gazedIndex, gazeStartTime, visibleSentences, sentences.length]);
+  }, [faceDetected, mappedPoint.x, mappedPoint.y, gazedIndex, gazeStartTime, currentSentenceIndex]);
 
   // Effect to handle hover sound
   useEffect(() => {
@@ -228,14 +248,6 @@ const MorningStage: React.FC<MorningStageProps> = ({
       }
     }
   }, [gazedIndex]);
-
-  // Separate effect to handle letter spacing reset when gaze stops
-  useEffect(() => {
-    if (gazedIndex === null && faceDetected) {
-      // Reset letter spacing when not gazing at any sentence
-      setLetterSpacing(new Array(sentences.length).fill(0));
-    }
-  }, [gazedIndex, faceDetected, sentences.length]);
 
   return (
     <div className="stage-morning" style={{ 
@@ -279,49 +291,36 @@ const MorningStage: React.FC<MorningStageProps> = ({
         loop
       />
       
-      {/* Morning Messages */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        left: '20px',
-        width: '100%',
-        maxWidth: '100%',
-        zIndex: 3
-      }}>
+      {/* Current Sentence */}
+      {currentSentenceIndex < Morning_MSG.length && (
         <div style={{
-          fontSize: '6vw',
-          fontWeight: 'bold',
-          lineHeight: '6.3vw',
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          color: videoFlag ? 'white' : 'black',
-          whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          gap: '0 0.2em'
+          position: 'absolute',
+          top: `${currentSentencePosition.y}%`,
+          left: `${currentSentencePosition.x}%`,
+          transform: 'translate(-50%, -50%)',
+          zIndex: 3
         }}>
-          {sentences.map((sentence, index) => (
-            visibleSentences[index] && (
-              <motion.span
-                key={index}
-                ref={el => sentenceRefs.current[index] = el}
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  filter: gazedIndex === index ? 'blur(0px)' : 'blur(9px)',
-                  display: 'inline-block',
-                  position: 'relative',
-                  letterSpacing: `${letterSpacing[index]}px`,
-                  transition: 'filter 0.3s ease, letter-spacing 0.1s ease'
-                }}
-              >
-                {sentence}
-              </motion.span>
-            )
-          ))}
+          <motion.span
+            ref={sentenceRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              fontSize: '6vw',
+              fontWeight: 'bold',
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              color: videoFlag ? 'white' : 'black',
+              filter: gazedIndex !== null ? 'blur(0px)' : 'blur(9px)',
+              letterSpacing: `${letterSpacing}px`,
+              transition: 'filter 0.3s ease, letter-spacing 0.1s ease',
+              whiteSpace: 'nowrap',
+              textAlign: 'left'
+            }}
+          >
+            {Morning_MSG[currentSentenceIndex]}
+          </motion.span>
         </div>
-      </div>
+      )}
 
       {/* Timer */}
       <div style={{

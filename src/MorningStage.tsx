@@ -32,6 +32,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
   const [currentSentencePosition, setCurrentSentencePosition] = useState<SentencePosition>({ x: 50, y: 50 });
   const [letterSpacing, setLetterSpacing] = useState(0);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [lastYPosition, setLastYPosition] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
   const sentenceRef = useRef<HTMLSpanElement | null>(null);
@@ -141,9 +142,36 @@ const MorningStage: React.FC<MorningStageProps> = ({
     const minY = textHeightPercent / 2; // Half the text height from top edge
     const maxY = 100 - (textHeightPercent / 2); // Half the text height from bottom edge
     
-    // Generate random position within safe bounds
+    // Generate random X position within safe bounds
     const x = minX + Math.random() * (maxX - minX);
-    const y = minY + Math.random() * (maxY - minY);
+    
+    // Generate Y position with height difference constraint
+    let y: number;
+    const minHeightDifference = 9; // Minimum height difference in vw units
+    const minHeightDifferencePercent = minHeightDifference; // Already in percentage terms
+    
+    if (lastYPosition !== null) {
+      // Ensure significant height difference from last position
+      const upperBound = Math.max(minY, lastYPosition - minHeightDifferencePercent);
+      const lowerBound = Math.min(maxY, lastYPosition + minHeightDifferencePercent);
+      
+      // Create two possible ranges: above or below the last position
+      const rangeAbove = [minY, upperBound];
+      const rangeBelow = [lowerBound, maxY];
+      
+      // Choose randomly between above or below
+      if (Math.random() < 0.5 && rangeAbove[1] > rangeAbove[0]) {
+        y = rangeAbove[0] + Math.random() * (rangeAbove[1] - rangeAbove[0]);
+      } else if (rangeBelow[1] > rangeBelow[0]) {
+        y = rangeBelow[0] + Math.random() * (rangeBelow[1] - rangeBelow[0]);
+      } else {
+        // Fallback to full range if constraints can't be met
+        y = minY + Math.random() * (maxY - minY);
+      }
+    } else {
+      // First sentence - no constraint
+      y = minY + Math.random() * (maxY - minY);
+    }
     
     return { x, y };
   };
@@ -153,7 +181,9 @@ const MorningStage: React.FC<MorningStageProps> = ({
     console.log(`useEffect triggered: currentSentenceIndex = ${currentSentenceIndex}`);
     if (currentSentenceIndex < Morning_MSG.length) {
       console.log(`Showing sentence ${currentSentenceIndex}: "${Morning_MSG[currentSentenceIndex]}"`);
-      setCurrentSentencePosition(generateRandomPosition(currentSentenceIndex));
+      const newPosition = generateRandomPosition(currentSentenceIndex);
+      setCurrentSentencePosition(newPosition);
+      setLastYPosition(newPosition.y); // Store the Y position for next sentence
       setLetterSpacing(0);
       setGazedIndex(null);
       setGazeStartTime(null);

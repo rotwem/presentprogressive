@@ -34,7 +34,8 @@ const IntroStage: React.FC<IntroStageProps> = ({
         color: 'black',
         textAlign: 'center',
         fontWeight: 'bold',
-        fontStyle: 'italic',
+        textTransform: 'uppercase',
+        // fontStyle: 'italic',
         zIndex: 1
       }}>
         {faceDetected ? (
@@ -45,7 +46,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
         ) : (
           <p style={{ 
             margin: 0,
-            fontSize: '4vw'
+            fontSize: '3vw',
           }}>Please position your face in the camera view...</p>
         )}
       </div>
@@ -95,6 +96,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
           &nbsp;&nbsp;&nbsp;&nbsp; THIS IS YOUR PRESENT AND IT IS PROGRESSIVE 
           &nbsp;&nbsp;&nbsp;&nbsp; THIS IS YOUR PRESENT AND IT IS PROGRESSIVE 
           &nbsp;&nbsp;&nbsp;&nbsp; THIS IS YOUR PRESENT AND IT IS PROGRESSIVE
+          
         </div>
         <style>
           {`

@@ -336,13 +336,14 @@ const MorningStage: React.FC<MorningStageProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
-              fontSize: '6vw',
+              fontSize: '5vw',
               fontWeight: 'bold',
               fontFamily: 'Helvetica, Arial, sans-serif',
+              textTransform: 'uppercase',
               color: videoFlag ? 'white' : 'black',
               filter: gazedIndex !== null ? 'blur(0px)' : 'blur(9px)',
               letterSpacing: `${letterSpacing}px`,
-              transition: 'filter 0.3s ease, letter-spacing 0.1s ease',
+              transition: 'filter 0.3s ease, letter-spacing 0.3s ease-out',
               whiteSpace: 'nowrap',
               textAlign: 'left'
             }}
@@ -353,21 +354,13 @@ const MorningStage: React.FC<MorningStageProps> = ({
       )}
 
       {/* Timer */}
-      <div style={{
-        position: 'absolute',
-        top: '50px',
-        right: '50px',
-        fontSize: '1.3vw',
-        fontWeight: 'bold',
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        paddingLeft: '20px',  
-        paddingRight: '20px',
-        border: '1px solid',
-        borderColor: timeLeft <= 30 ? '#ff0000' : fontColor,
-        color: timeLeft <= 30 ? '#ff0000' : fontColor,
-        zIndex: 3
-      }}>
+      <div 
+        className="timer"
+        style={{
+          color: timeLeft <= 30 ? '#ff0000' : fontColor,
+          zIndex: 3
+        }}
+      >
         {formatTime(timeLeft)}
       </div>
 
@@ -405,19 +398,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
 
       {/* Wink Text */}
       {showWink && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#ff0000',
-          fontSize: '120px',
-          fontWeight: 'bold',
-          zIndex: 1000,
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          textTransform: 'uppercase',
-          letterSpacing: '4px'
-        }}>
+        <div className="wink-text">
           WINK
         </div>
       )}

@@ -59,10 +59,10 @@ const MazeStage: React.FC<MazeStageProps> = ({
   // ];
 
   const absurdAffirmations = [
-    ["you are going places /", "/ where are you going?", "/chase_vid/going.mp4"],
-    ["you are checking the boxes /", "/ are you boxing yourself in?", "/chase_vid/box.mp4"],
-    ["you are making it work /", "/ are you working all the time?", "/chase_vid/work.mp4"],
-    ["you are leveling up /", "/ is this a game?", "/chase_vid/game.mp4"],
+    ["you are going places /", "/ where are you going?", "/chase_vid/going02.mp4"],
+    ["you are checking the boxes /", "/ are you boxing yourself in?", "/chase_vid/box02.mp4"],
+    ["you are making it work /", "/ are you working all the time?", "/chase_vid/work02.mp4"],
+    ["you are leveling up /", "/ are you playing a game?", "/chase_vid/game02.mp4"],
   ];
 
 
@@ -333,43 +333,36 @@ const MazeStage: React.FC<MazeStageProps> = ({
       />
 
       {/* Timer */}
-      <div style={{
-        position: 'absolute',
-        top: '50px',
-        right: '50px',
-        fontSize: '24px',
-        fontWeight: 'bold',
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        paddingLeft: '20px',  
-        paddingRight: '20px',
-        border: '1px solid',
-        borderColor: timeLeft <= 30 ? '#ff0000' : (currentMessage?.isPaused ? 'white' : 'black'),
-        color: timeLeft <= 30 ? '#ff0000' : (currentMessage?.isPaused ? 'white' : 'black'),
-        zIndex: 3
-      }}>
+      <div 
+        className="timer"
+        style={{
+          color: timeLeft <= 30 ? '#ff0000' : (currentMessage?.isPaused ? 'white' : 'black'),
+          zIndex: 3
+        }}
+      >
         {formatTime(timeLeft)}
       </div>
 
-      {/* Background Text - Only show when not hovering */}
+      {/* Background Image - Only show when not hovering */}
       {currentMessage && !currentMessage.isPaused && (
         <div style={{
           position: 'absolute',
-          top: '20px',
-          left: '20px',
-          maxWidth: '95%',
-          fontSize: '3.7vw',
-          lineHeight: '3.8vw',
-          color: 'black',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
           zIndex: 2,
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          opacity: 0.1,
-          textTransform: 'uppercase',
         }}>
-          ( everyday ) you are going to work.{' '}<br/>
-          you are watching the daylight fade from{' '}<br/>
-          inside a room in front of a computer.{' '}<br/> 
-          it is ok because ( ... ){' '}<br/>
+          <img 
+            src={getFileUrl("/MAZE_BG.png")}
+            alt="Background"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'fill',
+              opacity: 0.05,
+            }}
+          />
         </div>
       )}
 
@@ -400,7 +393,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
         </div>
       )}
 
-      {/* Bouncing Message */}
+      Bouncing Message
       {currentMessage && (
         <motion.div
           id={`message-${currentMessage.id}`}
@@ -411,13 +404,14 @@ const MazeStage: React.FC<MazeStageProps> = ({
             zIndex: 4,
             transition: 'opacity 0.3s ease',
             // height: '100px', // Adjust this height as needed
-            width: '40vw', // Fixed width for constant length
+            width: '45vw', // Fixed width for constant length
           }}
         >
           <div 
             style={{
-              fontSize: '4.1vw',
+              fontSize: '5vw',
               fontWeight: 'bold',
+              textTransform: 'uppercase',
               color: currentMessage.isPaused ? 'white' : 'black',
               // fontStyle: currentMessage.isPaused ? 'italic' : 'normal',
               textShadow: currentMessage.isPaused ? '2px 2px 4px rgba(0,0,0,0.8)' : 'none',
@@ -466,19 +460,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
 
       {/* Wink Text */}
       {showWink && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#ff0000',
-          fontSize: '120px',
-          fontWeight: 'bold',
-          zIndex: 1000,
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          textTransform: 'uppercase',
-          letterSpacing: '4px'
-        }}>
+        <div className="wink-text">
           WINK
         </div>
       )}

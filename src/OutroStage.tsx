@@ -27,7 +27,7 @@ const OutroStage: React.FC<OutroStageProps> = ({
           position: 'absolute',
           width: '100%',
           height: '100%',
-          objectFit: 'contain',
+          objectFit: 'fill',
           backgroundColor: '#000000',
           zIndex: 0
         }}
@@ -36,7 +36,7 @@ const OutroStage: React.FC<OutroStageProps> = ({
         muted={false}
         onEnded={onOutroComplete}
       >
-        <source src={getFileUrl("/credits.mp4")} type="video/mp4" />
+        <source src={getFileUrl("/bold_title.mp4")} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>

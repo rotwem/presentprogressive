@@ -25,7 +25,7 @@ interface VisibleImage {
 
 const GRID_COLS = 48;
 const GRID_ROWS = 27;
-const IMAGE_SIZE = 300; // Size in pixels for the images
+const IMAGE_SIZE = 250; // Size in pixels for the images
 const AVAILABLE_IMAGES = [
   'aluminium sculpture.png',
   'baby tower.png',
@@ -117,6 +117,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
   const gridRef = useRef<HTMLDivElement>(null);
   const [showWink, setShowWink] = useState(false);
   const [isVideoInverted, setIsVideoInverted] = useState(false);
+  const [textIndex, setTextIndex] = useState(0);
 
   // Create grid cells with random image assignments
   const [gridCells] = useState<GridCell[]>(() => {
@@ -140,6 +141,15 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
         console.error("Error playing video:", error);
       });
     }
+  }, []);
+
+  // Text cycling effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex(prev => (prev + 1) % 3);
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Check if gaze point is hovering over any grid cell
@@ -287,7 +297,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
             >
               {visibleImages[cell.id] && (
                 <img
-                  src={getFileUrl(`/nightime_png/${cell.imageName}`)}
+                  src={getFileUrl(`/nightime_pngs02/${cell.imageName}`)}
                   alt={`Grid Image ${cell.row}-${cell.col}`}
                   style={{
                     position: 'absolute',
@@ -314,40 +324,19 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
 
       {/* Wink Text */}
       {showWink && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#ff0000',
-          fontSize: '120px',
-          fontWeight: 'bold',
-          zIndex: 1000,
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          textTransform: 'uppercase',
-          letterSpacing: '4px'
-        }}>
+        <div className="wink-text">
           WINK
         </div>
       )}
 
       {/* Minimal controls - just reset calibration */}
-      <div style={{ 
-        position: 'absolute',
-        top: '50px',
-        right: '50px',
-        fontSize: '1.3vw',
-        lineHeight: '1.4vw',
-        // fontWeight: 'regular',
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        paddingLeft: '20px',  
-        paddingRight: '20px',
-        border: '1px solid #ff0000',
+      <div className="timer" style={{ 
         color: '#ff0000',
         zIndex: 1
       }}>
-        to be done<br/>close your eyes<br/>for 5 seconds
+        {textIndex === 0 && "to be done"}
+        {textIndex === 1 && "close your eye"}
+        {textIndex === 2 && "for 5 seconds"}
       </div>
     </div>
   );

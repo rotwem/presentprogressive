@@ -29,8 +29,10 @@ const TestStage: React.FC<TestStageProps> = ({
   const [bgColor, setBgColor] = useState<'white' | 'black'>('black');
   const [showWink, setShowWink] = useState(false);
   const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [isFullVideoMode, setIsFullVideoMode] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const hoverAudioRef = useRef<HTMLAudioElement>(null);
+  const fullVideoRef = useRef<HTMLVideoElement>(null);
 
   const gridQ: Array<[string, Record<string, string>]> = [
     ["ARE YOU FEELING OK?", {'RIGHT': 'YES', 'DOWN': 'NO'}],
@@ -143,12 +145,16 @@ const TestStage: React.FC<TestStageProps> = ({
       setTimeout(() => {
         setShowWink(false);
       }, 500);
+      
+      // Simply toggle between full video mode and hover mode
+      // The render logic will handle showing/hiding the appropriate videos
+      setIsFullVideoMode(prev => !prev);
     }
   }, [blinkDetected]);
 
   // Video hover detection for all videos
   useEffect(() => {
-    if (!faceDetected || videos.length === 0) return;
+    if (!faceDetected || videos.length === 0 || isFullVideoMode) return;
 
     setVideos(prevVideos => 
       prevVideos.map(video => {
@@ -188,10 +194,13 @@ const TestStage: React.FC<TestStageProps> = ({
         return video;
       })
     );
-  }, [mappedPoint.x, mappedPoint.y, faceDetected, videos.length]);
+  }, [mappedPoint.x, mappedPoint.y, faceDetected, videos.length, isFullVideoMode]);
 
   // Function to check if a video should be visible (hovered cell + neighbors)
   const shouldShowVideo = (video: VideoItem): boolean => {
+    // If in full video mode, hide all grid videos
+    if (isFullVideoMode) return false;
+    
     // If no video is hovered, show all videos
     const hoveredVideo = videos.find(v => v.isHovered);
     if (!hoveredVideo) return true;
@@ -279,137 +288,150 @@ const TestStage: React.FC<TestStageProps> = ({
       <audio ref={audioRef} src={getFileUrl("/circles.mp3")} preload="auto" />
       {/* Hover Audio */}
       <audio ref={hoverAudioRef} src={getFileUrl("/coin-flip-shimmer-85750.mp3")} preload="auto" />
-      {/* Video grid in the center */}
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1,
-        // padding: 'min(2vh, 2vw)',
-        boxSizing: 'border-box'
-      }}>
+      
+      {/* Full Video (shown when in full video mode) */}
+      {isFullVideoMode && (
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(6, 1fr)',
-          gridTemplateRows: 'repeat(4, 1fr)',
-          columnGap: '2vw',
-          rowGap: '0',
-          width: 'fit-content',
-          height: 'fit-content',
-          // maxWidth: 'calc(100vw - 2 * min(2vh, 2vw))',
-          // maxHeight: 'calc(100vh - 2 * min(2vh, 2vw))'
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1
         }}>
-          {videos.map((video, index) => {
-            const questionData = getQuestionAndAnswers();
-            const isHoveredCell = video.isHovered;
-            const answerText = getAnswerForCell(video);
-            const videoNumber = (index + 1).toString().padStart(2, '0');
-            
-            return (
-              <div key={video.id} style={{ position: 'relative', margin: 0, padding: 0 }}>
-                <video
-                  ref={video.ref}
-                  src={getFileUrl(`/q_vids/${videoNumber}.mp4`)}
-                  style={{
-                    // width: '11vw',
-                    height: '25vh',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                    // border: video.isHovered ? '2px solid #ff0000' : '1px solid #ccc',
-                    opacity: shouldShowVideo(video) ? 1 : 0.1,
-                    transition: 'opacity 0.3s ease-in-out',
-                    display: 'block',
-                    margin: 0,
-                    padding: 0
-                  }}
-                  muted
-                  playsInline
-                />
-                
-                {/* Question overlay on hovered cell */}
-                {/* {isHoveredCell && questionData && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    zIndex: 10,
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                    maxWidth: '90%',
-                    lineHeight: '1.2'
-                  }}>
-                    {questionData.question}
-                  </div>
-                )} */}
-                
-                {/* Answer overlay on neighboring cells */}
-                {answerText && !isHoveredCell && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    color: '#ff0000',
-                    fontSize: '1.5vh',
-                    fontWeight: 'bold',
-                    fontStyle: 'italic',
-                    textAlign: 'center',
-                    zIndex: 10,
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                    maxWidth: '90%'
-                  }}>
-                    {answerText}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          <video
+            ref={fullVideoRef}
+            src={getFileUrl("/c_vids/full_vid.mp4")}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'center'
+            }}
+            muted
+            playsInline
+            autoPlay
+          />
         </div>
-      </div>
+      )}
+      
+      {/* Video grid in the center (only shown when not in full video mode) */}
+      {!isFullVideoMode && (
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1,
+          // padding: 'min(2vh, 2vw)',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(6, 1fr)',
+            gridTemplateRows: 'repeat(4, 1fr)',
+            columnGap: '2vw',
+            rowGap: '0',
+            width: 'fit-content',
+            height: 'fit-content',
+            // maxWidth: 'calc(100vw - 2 * min(2vh, 2vw))',
+            // maxHeight: 'calc(100vh - 2 * min(2vh, 2vw))'
+          }}>
+            {videos.map((video, index) => {
+              const questionData = getQuestionAndAnswers();
+              const isHoveredCell = video.isHovered;
+              const answerText = getAnswerForCell(video);
+              const videoNumber = (index + 1).toString().padStart(2, '0');
+              
+              return (
+                <div key={video.id} style={{ position: 'relative', margin: 0, padding: 0 }}>
+                  <video
+                    ref={video.ref}
+                    src={getFileUrl(`/c_vids/${videoNumber}.mp4`)}
+                    style={{
+                      // width: '11vw',
+                      height: '25vh',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      // border: video.isHovered ? '2px solid #ff0000' : '1px solid #ccc',
+                      opacity: shouldShowVideo(video) ? 1 : 0.1,
+                      transition: 'opacity 0.3s ease-in-out',
+                      display: 'block',
+                      margin: 0,
+                      padding: 0
+                    }}
+                    muted
+                    playsInline
+                  />
+                  
+                  {/* Question overlay on hovered cell */}
+                  {/* {isHoveredCell && questionData && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      color: '#ffffff',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      zIndex: 10,
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                      maxWidth: '90%',
+                      lineHeight: '1.2'
+                    }}>
+                      {questionData.question}
+                    </div>
+                  )} */}
+                  
+                  {/* Answer overlay on neighboring cells */}
+                  {answerText && !isHoveredCell && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      color: '#ff0000',
+                      fontSize: '1.5vh',
+                      fontWeight: 'bold',
+                      fontStyle: 'italic',
+                      textAlign: 'center',
+                      zIndex: 10,
+                      textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                      maxWidth: '90%'
+                    }}>
+                      {answerText}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Wink Text */}
       {showWink && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: '#ff0000',
-          fontSize: '120px',
-          fontWeight: 'bold',
-          zIndex: 1000,
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          textTransform: 'uppercase',
-          letterSpacing: '4px'
-        }}>
+        <div className="wink-text">
           WINK
         </div>
       )}
 
       {/* Timer */}
-      <div style={{
-        position: 'absolute',
-        top: '50px',
-        right: '50px',
-        fontSize: '1.3vw',
-        fontWeight: 'bold',
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        paddingLeft: '20px',  
-        paddingRight: '20px',
-        border: timeLeft <= 30 ? '1px solid #ff0000' : `1px solid ${bgColor === 'white' ? '#000000' : '#ffffff'}`,
-        color: timeLeft <= 30 ? '#ff0000' : bgColor === 'white' ? '#000000' : '#ffffff',
-        zIndex: 3
-      }}>
+      <div 
+        className="timer"
+        style={{
+          color: timeLeft <= 30 ? '#ff0000' : bgColor === 'white' ? '#000000' : '#ffffff',
+          zIndex: 3
+        }}
+      >
         {formatTime(timeLeft)}
       </div>
 

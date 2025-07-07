@@ -70,6 +70,7 @@ function App() {
   const blinkStateRef = useRef<'open' | 'closed'>('open');
   const blinkStartTimeRef = useRef<number | null>(null);
   const calibrationBoundsRef = useRef({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
+  const transitionGuardRef = useRef<boolean>(false);
 
   const targetKeys = Object.keys(CALIBRATION_TARGETS) as CalibrationTarget[];
 
@@ -515,6 +516,11 @@ function App() {
   const handleBlinkDetection = (ear: number) => {
     const currentTime = Date.now();
     
+    // Skip blink detection if we're in a transition period
+    if (transitionGuardRef.current) {
+      return;
+    }
+    
     if (blinkStateRef.current === 'open' && ear < BLINK_THRESHOLD) {
       // Eyes just closed
       blinkStateRef.current = 'closed';
@@ -616,11 +622,19 @@ function App() {
     setCalibrationRawGazePoints([]);
     setCurrentTargetIndex(0);
     currentTargetIndexRef.current = 0;
-    // Ignore the transition blink by setting a small delay
+    
+    // Set transition guard to prevent blink detection during transition
+    transitionGuardRef.current = true;
+    
+    // Ignore the transition blink by setting a 1-second delay
     setTimeout(() => {
       setBlinkDetected(false);
       blinkStateRef.current = 'open';
-    }, 100);
+      blinkStartTimeRef.current = null;
+      setBlinkDuration(0);
+      transitionGuardRef.current = false; // Re-enable blink detection
+      console.log('Transition guard cleared - blink detection re-enabled');
+    }, 1000);
   };
 
   const resetCalibration = () => {

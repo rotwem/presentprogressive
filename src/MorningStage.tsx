@@ -307,7 +307,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
             display: videoFlag ? 'block' : 'none'
           }}
         >
-          <source src={getFileUrl("/morning_full01.mp4")} type="video/mp4" />
+          <source src={getFileUrl("/morning full02.mp4")} type="video/mp4" />
         </video>
       </div>
 
@@ -357,7 +357,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
       <div 
         className="timer"
         style={{
-          color: timeLeft <= 30 ? '#ff0000' : fontColor,
+          // color: '#ff0000',
           zIndex: 3
         }}
       >
@@ -399,7 +399,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
       {/* Wink Text */}
       {showWink && (
         <div className="wink-text">
-          WINK
+          wink
         </div>
       )}
     </div>

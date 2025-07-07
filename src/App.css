@@ -1,3 +1,43 @@
+@font-face {
+  font-family: 'NarkissAsaf';
+  src: url('/NarkissAsaf-Regular-TRIAL.otf') format('opentype'),
+       url('/NarkissAsaf-Regular-TRIAL.otf');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font loading check */
+@supports (font-display: swap) {
+  @font-face {
+    font-family: 'NarkissAsaf';
+    src: url('/NarkissAsaf-Regular-TRIAL.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@font-face {
+  font-family: '80-kb-Sharp';
+  src: url('/80-kb-Sharp.otf') format('opentype'),
+       url('/80-kb-Sharp.otf');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font loading check */
+@supports (font-display: swap) {
+  @font-face {
+    font-family: '80-kb-Sharp';
+    src: url('/80-kb-Sharp.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
 .app {
   width: 100vw;
   height: 100vh;
@@ -103,16 +143,18 @@
   color: #ff0000;
   padding: 15px;
   /* border-radius: 8px; */
-  font-family: 'Narkis Tam', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif;
+  /* font-family: '80-kb-Sharp', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif; */
   font-size: 14px;
   /* border: 1px solid #ff0000; */
   z-index: 15;
-  min-width: 10vw;
+  min-width: 11vw;
   text-align: center;
 }
 
 .status-panel * {
-  font-family: 'Narkis Tam', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif;
+  /* font-family: '80-kb-Sharp','Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif; */
 }
 
 .status-title {
@@ -120,7 +162,8 @@
   font-weight: bold;
   margin-bottom: 10px;
   color: #ff0000;
-  font-family: 'Narkis Tam', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif;
+  /* font-family: '80-kb-Sharp','Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif; */
   text-align: center;
 }
 
@@ -128,18 +171,21 @@
   margin: 10px 0;
   display: flex;
   justify-content: space-between;
-  font-family: 'Narkis Tam', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif;
+  /* font-family: '80-kb-Sharp','Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif; */
   font-size: 0.6vw;
 }
 
 .status-value {
   color: #ffffff;
-  font-family: 'Narkis Tam', sans-serif;
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif;
+  /* font-family: '80-kb-Sharp','Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', sans-serif; */
 }
 
 .instructions {
   position: absolute;
-  top: 10px;
+  width: 100%;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: transparent;
@@ -151,10 +197,29 @@
   line-height: 2.5vw;
   text-transform: uppercase;
   font-weight: bold;
-  font-style: italic;
-  /* border: 1px solid #ff0000; */
-  z-index: 15;
-  max-width: 1500px;
+  /* font-style: italic; */
+}
+
+.target-name {
+  color: #ff0000;
+  font-style: normal !important;
+  font-size: 2.5vw;
+  /* font-family: 'NarkissAsaf', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif' !important; */
+  font-family: '80-kb-Sharp', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif' !important;
+  text-transform: none !important;
+}
+
+.progress-indicator {
+  font-size: 1.2vw;
+  color: #666;
+  margin-bottom: 0.5vw;
+  font-weight: normal;
+  text-transform: none;
+}
+
+.instruction-gap {
+  height: 1vw;
+  /* You can adjust this value to increase/decrease the gap */
 }
 
 .error-message {
@@ -245,6 +310,7 @@
 .wink-indicator {
   color: #ff0000;
   font-weight: bold;
+  font-family: 'Narkis Tam', monospace;
 }
 
 /* Hide camera container during intro and nightime stages */
@@ -308,11 +374,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: #ff0000;
-  font-size: 7vw;
-  font-style: italic;
+  font-size: 4.5vw;
+  font-style: normal !important;
   z-index: 1000;
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
-  text-transform: uppercase;
+  /* font-family: 'NarkissAsaf', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif' !important; */
+  font-family: '80-kb-Sharp', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif' !important;
+  text-transform: none !important;
   /* letter-spacing: 2px; */
   /* font-weight: 400; */
 }
@@ -320,7 +387,10 @@
 .timer {
   position: absolute;
   right: 50px;
-  font-size: 6vw;
+  top: 20px;
+  font-size: 3.5vw;
   font-style: italic;
-  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+  letter-spacing: -1;
+  font-family: '80-kb-Sharp', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif' !important;
+  color: #ff0000;
 }

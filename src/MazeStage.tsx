@@ -304,7 +304,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
       <audio
         id="mazeAudio"
         loop
-        src={getFileUrl("/maze_sound.mp3")}
+        src={getFileUrl("/Work AE.wav")}
         style={{ display: 'none' }}
       />
       <audio
@@ -336,7 +336,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
       <div 
         className="timer"
         style={{
-          color: timeLeft <= 30 ? '#ff0000' : (currentMessage?.isPaused ? 'white' : 'black'),
+          // color: timeLeft <= 30 ? '#ff0000' : (currentMessage?.isPaused ? 'white' : 'black'),
           zIndex: 3
         }}
       >
@@ -461,7 +461,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
       {/* Wink Text */}
       {showWink && (
         <div className="wink-text">
-          WINK
+          wink
         </div>
       )}
     </div>

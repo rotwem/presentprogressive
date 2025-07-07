@@ -325,7 +325,7 @@ const NightimeStage: React.FC<NightimeStageProps> = ({
       {/* Wink Text */}
       {showWink && (
         <div className="wink-text">
-          WINK
+          wink
         </div>
       )}
 

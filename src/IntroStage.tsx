@@ -38,11 +38,16 @@ const IntroStage: React.FC<IntroStageProps> = ({
         // fontStyle: 'italic',
         zIndex: 1
       }}>
-        {faceDetected ? (
+        {faceDetected ? (<div>
           <p style={{ 
             margin: 0,
-            fontSize: '10vw'
-          }}>Wink to start</p>
+            fontSize: '7.5vw'
+          }}>wink to start</p>
+          {/* <p className='wink-text' style={{ 
+            margin: 0,
+            // fontSize: '10vw'
+          }}>Wink to start</p> */}
+          </div>
         ) : (
           <p style={{ 
             margin: 0,

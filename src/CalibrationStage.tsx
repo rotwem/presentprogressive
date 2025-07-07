@@ -37,11 +37,11 @@ const CalibrationStage: React.FC<CalibrationStageProps> = ({
       const targetName = targetKeys[currentTargetIndex].replace('_', ' ');
       return (
         <>
-          ( {currentTargetIndex + 1}/{targetKeys.length} )
-          <br/>
+          <div className="target-name">( {currentTargetIndex + 1}/{targetKeys.length} )</div>
+          <div className="instruction-gap"></div>
           Gently turn your head to look at the
           <br/>
-          {targetName} target and wink to calibrate
+          <span className="target-name">( {targetName} ) </span> target and wink to calibrate
         </>
       );
     } else {

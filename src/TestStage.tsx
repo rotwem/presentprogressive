@@ -35,30 +35,30 @@ const TestStage: React.FC<TestStageProps> = ({
   const fullVideoRef = useRef<HTMLVideoElement>(null);
 
   const gridQ: Array<[string, Record<string, string>]> = [
-    ["ARE YOU FEELING OK?", {'RIGHT': 'YES', 'DOWN': 'NO'}],
-    ["ARE YOU SOCIALIZING?", {'RIGHT': 'YES', 'DOWN': 'NO', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU GOING OUT?", {'RIGHT': 'YES', 'DOWN': 'NO', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU STANDING OUT?", {'RIGHT': 'YES', 'DOWN': 'NO', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU BEING YOURSELF?", {'RIGHT': 'YES', 'DOWN': 'NO', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU FEELING SCARED?", {'DOWN': 'NO', 'LEFT': 'YES'}],
-    ["ARE YOU TALKING TO ANYONE?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU TAKING CARE OF YOURSELF?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU TRYING TO RELAX?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU BLENDING IN?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU PLAYING GAMES?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU LOSING INTEREST?", {'DOWN': 'NO', 'LEFT': 'YES', 'UP': 'MAYBE'}],
-    ["ARE YOU AVOIDING SOMETHING?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU DOOM SCROLLING?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU BED ROTTING?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU ENJOYING YOURSELF?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU FALLING IN LOVE?", {'RIGHT': 'YES', 'DOWN': 'NO', 'UP': 'MAYBE', 'LEFT': 'UNKNOWN'}],
-    ["ARE YOU EXPRESSING YOUR FEELINGS?", {'DOWN': 'NO', 'LEFT': 'YES', 'UP': 'MAYBE'}],
-    ["ARE YOU FEELING GUILTY?", {'RIGHT': 'YES', 'UP': 'NO'}],
-    ["ARE YOU BEING PRODUCTIVE?", {'RIGHT': 'YES', 'LEFT': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU DOING YOUR CHORES?", {'RIGHT': 'YES', 'LEFT': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU BREATHING?", {'RIGHT': 'YES', 'LEFT': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU MISSING SOMETHING?", {'RIGHT': 'YES', 'LEFT': 'NO', 'UP': 'MAYBE'}],
-    ["ARE YOU GETTING TIRED?", {'LEFT': 'NO', 'UP': 'YES'}],
+    ["are you feeling ok?", {'RIGHT': 'yes', 'DOWN': 'no'}],
+    ["are you socializing?", {'RIGHT': 'yes', 'DOWN': 'no', 'LEFT': 'unknown'}],
+    ["are you going out?", {'RIGHT': 'yes', 'DOWN': 'no', 'LEFT': 'unknown'}],
+    ["are you standing out?", {'RIGHT': 'yes', 'DOWN': 'no', 'LEFT': 'unknown'}],
+    ["are you being yourself?", {'RIGHT': 'yes', 'DOWN': 'no', 'LEFT': 'unknown'}],
+    ["are you feeling scared?", {'DOWN': 'no', 'LEFT': 'yes'}],
+    ["are you talking to anyone?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe'}],
+    ["are you taking care of yourself?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you trying to relax?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you blending in?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you playing games?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you losing interest?", {'DOWN': 'no', 'LEFT': 'yes', 'UP': 'maybe'}],
+    ["are you avoiding something?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe'}],
+    ["are you doom scrolling?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you bed rotting?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you enjoying yourself?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you falling in love?", {'RIGHT': 'yes', 'DOWN': 'no', 'UP': 'maybe', 'LEFT': 'unknown'}],
+    ["are you expressing your feelings?", {'DOWN': 'no', 'LEFT': 'yes', 'UP': 'maybe'}],
+    ["are you feeling guilty?", {'RIGHT': 'yes', 'UP': 'no'}],
+    ["are you being productive?", {'RIGHT': 'yes', 'LEFT': 'no', 'UP': 'maybe'}],
+    ["are you doing your chores?", {'RIGHT': 'yes', 'LEFT': 'no', 'UP': 'maybe'}],
+    ["are you breathing?", {'RIGHT': 'yes', 'LEFT': 'no', 'UP': 'maybe'}],
+    ["are you missing something?", {'RIGHT': 'yes', 'LEFT': 'no', 'UP': 'maybe'}],
+    ["are you getting tired?", {'LEFT': 'no', 'UP': 'yes'}],
   ]
 
   // Initialize videos with row and column positions
@@ -285,7 +285,7 @@ const TestStage: React.FC<TestStageProps> = ({
       backgroundColor: bgColor,
     }}>
       {/* Background Audio */}
-      <audio ref={audioRef} src={getFileUrl("/circles.mp3")} preload="auto" />
+      <audio ref={audioRef} src={getFileUrl("/Freetime AE.wav")} preload="auto" />
       {/* Hover Audio */}
       <audio ref={hoverAudioRef} src={getFileUrl("/coin-flip-shimmer-85750.mp3")} preload="auto" />
       
@@ -393,19 +393,21 @@ const TestStage: React.FC<TestStageProps> = ({
                   
                   {/* Answer overlay on neighboring cells */}
                   {answerText && !isHoveredCell && (
-                    <div style={{
+                    <div className='wink-text' style={{
                       position: 'absolute',
                       top: '50%',
                       left: '50%',
+                      // fontFamily: '80-kb-Sharp',
                       transform: 'translate(-50%, -50%)',
                       color: '#ff0000',
-                      fontSize: '1.5vh',
-                      fontWeight: 'bold',
-                      fontStyle: 'italic',
+                      fontSize: '2vh',
+                      // fontWeight: 'bold',
+                      // fontStyle: 'italic',
                       textAlign: 'center',
                       zIndex: 10,
                       textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                      maxWidth: '90%'
+                      maxWidth: '90%',
+                      textTransform: 'lowercase'
                     }}>
                       {answerText}
                     </div>
@@ -420,7 +422,7 @@ const TestStage: React.FC<TestStageProps> = ({
       {/* Wink Text */}
       {showWink && (
         <div className="wink-text">
-          WINK
+          wink
         </div>
       )}
 
@@ -428,7 +430,7 @@ const TestStage: React.FC<TestStageProps> = ({
       <div 
         className="timer"
         style={{
-          color: timeLeft <= 30 ? '#ff0000' : bgColor === 'white' ? '#000000' : '#ffffff',
+          // color: timeLeft <= 30 ? '#ff0000' : bgColor === 'white' ? '#000000' : '#ffffff',
           zIndex: 3
         }}
       >

@@ -63,6 +63,7 @@ function App() {
   const [blinkDetected, setBlinkDetected] = useState(false);
   const [blinkDuration, setBlinkDuration] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [dayNumber, setDayNumber] = useState(0);
 
   // Tracking variables
   const emaGazeRef = useRef<GazePoint | null>(null);
@@ -674,6 +675,8 @@ function App() {
     console.log('Outro complete, restarting from intro');
     setStage('intro');
     stageRef.current = 'intro';
+    // Increment day number when going from outro back to intro
+    setDayNumber(prevDay => prevDay + 1);
     // Reset all necessary state
     setCalibrationRawGazePoints([]);
     setCurrentTargetIndex(0);
@@ -755,6 +758,7 @@ function App() {
             faceDetected={faceDetected}
             blinkDetected={blinkDetected}
             onIntroComplete={handleIntroComplete}
+            dayNumber={dayNumber}
           />
         );
 

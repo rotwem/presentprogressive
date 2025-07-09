@@ -307,7 +307,7 @@ const MorningStage: React.FC<MorningStageProps> = ({
             display: videoFlag ? 'block' : 'none'
           }}
         >
-          <source src={getFileUrl("/morning full02.mp4")} type="video/mp4" />
+          <source src={getFileUrl("/morning full03.mp4")} type="video/mp4" />
         </video>
       </div>
 

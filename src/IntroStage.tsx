@@ -1,15 +1,18 @@
 import React, { useEffect } from 'react';
+import { getFileUrl } from './config';
 
 interface IntroStageProps {
   faceDetected: boolean;
   blinkDetected: boolean;
   onIntroComplete: () => void;
+  dayNumber: number;
 }
 
 const IntroStage: React.FC<IntroStageProps> = ({
   faceDetected,
   blinkDetected,
-  onIntroComplete
+  onIntroComplete,
+  dayNumber
 }) => {
   // When a blink is detected, trigger the transition
   useEffect(() => {
@@ -29,6 +32,22 @@ const IntroStage: React.FC<IntroStageProps> = ({
       alignItems: 'center',
       justifyContent: 'center'
     }}>
+      {/* Background Image - shown when face is detected */}
+      {faceDetected && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: `url(${getFileUrl("/BOLD3.png")})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          zIndex: 0
+        }} />
+      )}
+
       {/* Instructions */}
       <div style={{
         color: 'black',
@@ -38,15 +57,47 @@ const IntroStage: React.FC<IntroStageProps> = ({
         // fontStyle: 'italic',
         zIndex: 1
       }}>
-        {faceDetected ? (<div>
-          <p style={{ 
-            margin: 0,
-            fontSize: '7.5vw'
-          }}>wink to start</p>
-          {/* <p className='wink-text' style={{ 
-            margin: 0,
-            // fontSize: '10vw'
-          }}>Wink to start</p> */}
+        {faceDetected ? (
+          <div>
+            {/* <p style={{ 
+              margin: 0,
+              fontSize: '7.5vw'
+            }}>wink to start</p> */}
+            <p className='wink-text' style={{ 
+              margin: 0,
+            }}>Wink to start</p>
+            {/* Day #0 indicator over the red rectangle */}
+            <p
+              className='wink-text'
+              style={{
+                position: 'absolute',
+                textAlign: 'right',
+                alignContent: 'right',
+                top: '65%', // Adjust as needed for vertical placement
+                left: '66.5%', // Adjust as needed for horizontal placement
+                margin: 0,
+                zIndex: 2,
+                transform: 'translateY(-50%)'
+              }}
+            >
+              day #{dayNumber}
+            </p>
+            <p
+              className='wink-text'
+              style={{
+                position: 'absolute',
+                textAlign: 'left',
+                alignContent: 'left',
+                top: '93%', // Adjust as needed for vertical placement
+                left: '50%%', // Adjust as needed for horizontal placement
+                margin: 0,
+                width: '100%',
+                zIndex: 2,
+                // transform: 'translateY(-50%)'
+              }}
+            >
+              ( 'r' = restart )
+            </p>
           </div>
         ) : (
           <p style={{ 
@@ -57,7 +108,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
       </div>
 
       {/* News Ticker Banner */}
-      <div style={{
+      {/* <div style={{
         position: 'absolute',
         bottom: '0px',
         left: 0,
@@ -111,7 +162,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
             }
           `}
         </style>
-      </div>
+      </div> */}
     </div>
   );
 };

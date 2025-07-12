@@ -30,6 +30,7 @@ const TestStage: React.FC<TestStageProps> = ({
   const [showWink, setShowWink] = useState(false);
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [isFullVideoMode, setIsFullVideoMode] = useState(false);
+  const [isGridReady, setIsGridReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const hoverAudioRef = useRef<HTMLAudioElement>(null);
   const fullVideoRef = useRef<HTMLVideoElement>(null);
@@ -77,6 +78,25 @@ const TestStage: React.FC<TestStageProps> = ({
     }
     setVideos(videoItems);
   }, []);
+
+  // Calculate video positions and set grid as ready
+  useEffect(() => {
+    if (videos.length === 0 || isFullVideoMode) return;
+
+    // Simple approach: wait for videos to be rendered and stable
+    const timer = setTimeout(() => {
+      setIsGridReady(true);
+    }, 500); // Give enough time for videos to load and layout to stabilize
+    
+    return () => clearTimeout(timer);
+  }, [videos.length, isFullVideoMode]);
+
+  // Reset grid ready state when switching modes
+  useEffect(() => {
+    if (isFullVideoMode) {
+      setIsGridReady(false);
+    }
+  }, [isFullVideoMode]);
 
   // Initialize end time when stage starts
   useEffect(() => {
@@ -154,7 +174,7 @@ const TestStage: React.FC<TestStageProps> = ({
 
   // Video hover detection for all videos
   useEffect(() => {
-    if (!faceDetected || videos.length === 0 || isFullVideoMode) return;
+    if (!faceDetected || videos.length === 0 || isFullVideoMode || !isGridReady) return;
 
     setVideos(prevVideos => 
       prevVideos.map(video => {
@@ -194,12 +214,15 @@ const TestStage: React.FC<TestStageProps> = ({
         return video;
       })
     );
-  }, [mappedPoint.x, mappedPoint.y, faceDetected, videos.length, isFullVideoMode]);
+  }, [mappedPoint.x, mappedPoint.y, faceDetected, videos.length, isFullVideoMode, isGridReady]);
 
   // Function to check if a video should be visible (hovered cell + neighbors)
   const shouldShowVideo = (video: VideoItem): boolean => {
     // If in full video mode, hide all grid videos
     if (isFullVideoMode) return false;
+    
+    // If grid is not ready, don't show any videos
+    if (!isGridReady) return false;
     
     // If no video is hovered, show all videos
     const hoveredVideo = videos.find(v => v.isHovered);
@@ -318,7 +341,7 @@ const TestStage: React.FC<TestStageProps> = ({
         </div>
       )}
       
-      {/* Video grid in the center (only shown when not in full video mode) */}
+      {/* Video grid in the center (only shown when not in full video mode and grid is ready) */}
       {!isFullVideoMode && (
         <div style={{
           position: 'absolute',
@@ -331,7 +354,9 @@ const TestStage: React.FC<TestStageProps> = ({
           alignItems: 'center',
           zIndex: 1,
           // padding: 'min(2vh, 2vw)',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          opacity: isGridReady ? 1 : 0,
+          transition: 'opacity 0.3s ease-in-out'
         }}>
           <div style={{
             display: 'grid',
@@ -418,6 +443,8 @@ const TestStage: React.FC<TestStageProps> = ({
           </div>
         </div>
       )}
+
+
 
       {/* Wink Text */}
       {showWink && (

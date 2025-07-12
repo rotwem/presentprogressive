@@ -63,6 +63,8 @@ const MazeStage: React.FC<MazeStageProps> = ({
     ["you are checking the boxes /", "/ are you boxing yourself in?", "/chase_vid/box02.mp4"],
     ["you are making it work /", "/ are you working all the time?", "/chase_vid/work02.mp4"],
     ["you are leveling up /", "/ are you playing a game?", "/chase_vid/game02.mp4"],
+    ["you are staying productive /", "/ are you distracting yourself?", "/chase_vid/light.mp4"],
+    ["you are building your future /", "/ are you accepting your past?", "/chase_vid/chair.mp4"],
   ];
 
 
@@ -360,7 +362,11 @@ const MazeStage: React.FC<MazeStageProps> = ({
               width: '100%',
               height: '100%',
               objectFit: 'fill',
-              opacity: 0.05,
+              opacity: currentNoise === 'none' ? 0.05 : 
+                      currentNoise === 'grey' ? 0.15 :
+                      currentNoise === 'brown' ? 0.25 :
+                      currentNoise === 'blue' ? 0.35 :
+                      currentNoise === 'white' ? 0.45 : 0.05,
             }}
           />
         </div>

@@ -56,11 +56,14 @@ const CalibrationStage: React.FC<CalibrationStageProps> = ({
         {renderCalibrationTarget()}
       </div>
 
-      {/* Face indicators */}
       <div className="face-indicators">
         Face: {faceDetected ? '✓' : '✗'} | 
         {blinkDetected && <span className="wink-indicator"> WINK!</span>}
         {earValue && ` | EAR: ${earValue.toFixed(3)}`}
+      </div>
+
+      <div className="restart-indicator">
+        'r' = restart
       </div>
 
       {/* Status panel */}

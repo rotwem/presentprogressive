@@ -33,7 +33,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
       justifyContent: 'center'
     }}>
       {/* Background Image - shown when face is detected */}
-      {faceDetected && (
+      { (
         <div style={{
           position: 'absolute',
           top: 0,
@@ -43,6 +43,8 @@ const IntroStage: React.FC<IntroStageProps> = ({
           backgroundImage: `url(${getFileUrl("/BOLD3.png")})`,
           backgroundSize: 'contain',
           backgroundPosition: 'center',
+          backgroundColor: faceDetected ? 'white' : 'white',
+          filter: faceDetected ? 'none' : 'invert(1)',
           backgroundRepeat: 'no-repeat',
           zIndex: 0
         }} />
@@ -82,7 +84,7 @@ const IntroStage: React.FC<IntroStageProps> = ({
             >
               day #{dayNumber}
             </p>
-            <p
+            {/* <p
               className='wink-text'
               style={{
                 position: 'absolute',
@@ -97,13 +99,14 @@ const IntroStage: React.FC<IntroStageProps> = ({
               }}
             >
               ( 'r' = restart )
-            </p>
+            </p> */}
           </div>
         ) : (
-          <p style={{ 
+          <p className='wink-text' style={{ 
             margin: 0,
-            fontSize: '3vw',
-          }}>Please position your face in the camera view...</p>
+            width: '100%',
+            // fontSize: '3vw',
+          }}>position your face in the camera view</p>
         )}
       </div>
 

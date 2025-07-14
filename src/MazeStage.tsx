@@ -107,12 +107,9 @@ const MazeStage: React.FC<MazeStageProps> = ({
     return () => clearInterval(timer);
   }, [endTime, onStageComplete]);
 
-  // Function to cycle through noises
-  const cycleNoise = () => {
-    const noiseOrder: Array<'none' | 'grey' | 'brown' | 'blue' | 'white'> = ['none', 'grey', 'brown', 'blue', 'white'];
-    const currentIndex = noiseOrder.indexOf(currentNoise);
-    const nextIndex = (currentIndex + 1) % noiseOrder.length;
-    setCurrentNoise(noiseOrder[nextIndex]);
+  // Function to toggle between noise states
+  const toggleNoise = () => {
+    setCurrentNoise(currentNoise === 'none' ? 'blue' : 'none');
   };
 
   // Effect to handle noise changes
@@ -137,11 +134,11 @@ const MazeStage: React.FC<MazeStageProps> = ({
     }
   }, [currentNoise]);
 
-  // Add effect for wink text display and noise cycling
+  // Add effect for wink text display and noise toggling
   useEffect(() => {
     if (blinkDetected) {
       setShowWink(true);
-      cycleNoise();
+      toggleNoise();
       setTimeout(() => {
         setShowWink(false);
       }, 500);
@@ -356,17 +353,16 @@ const MazeStage: React.FC<MazeStageProps> = ({
           zIndex: 2,
         }}>
           <img 
-            src={getFileUrl("/MAZE_BG.png")}
+            src={getFileUrl("/MAZE_BG03.png")}
             alt="Background"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'fill',
-              opacity: currentNoise === 'none' ? 0.05 : 
-                      currentNoise === 'grey' ? 0.15 :
-                      currentNoise === 'brown' ? 0.25 :
-                      currentNoise === 'blue' ? 0.35 :
-                      currentNoise === 'white' ? 0.45 : 0.05,
+              isolation: 'isolate',
+              opacity: currentNoise === 'none' ? 0.01 : 
+                      currentNoise === 'blue' ? 1 : 0.01,
+              mixBlendMode: currentNoise === 'blue' ? 'difference' : 'normal',
             }}
           />
         </div>
@@ -407,7 +403,7 @@ const MazeStage: React.FC<MazeStageProps> = ({
             position: 'absolute',
             left: currentMessage.x,
             top: currentMessage.y,
-            zIndex: 4,
+            zIndex: 2,
             transition: 'opacity 0.3s ease',
             // height: '100px', // Adjust this height as needed
             width: '45vw', // Fixed width for constant length
@@ -418,9 +414,15 @@ const MazeStage: React.FC<MazeStageProps> = ({
               fontSize: '5vw',
               fontWeight: 'bold',
               textTransform: 'uppercase',
-              color: currentMessage.isPaused ? 'white' : 'black',
+              // color: currentMessage.isPaused ? 'white' : 'black',
+              // opacity: currentNoise === 'blue' && !currentMessage.isPaused ? 0.5 : 1,
+              color: currentMessage.isPaused || currentNoise === 'blue' ? 'white' : 'black',
+              // mixBlendMode: currentNoise === 'blue' ? 'difference' : 'normal',
+              isolation: 'isolate',
               // fontStyle: currentMessage.isPaused ? 'italic' : 'normal',
-              textShadow: currentMessage.isPaused ? '2px 2px 4px rgba(0,0,0,0.8)' : 'none',
+              // textShadow: currentMessage.isPaused || currentNoise === 'blue' ? '2px 2px 4px rgba(0,0,0,0.8)' : 'none',
+              // textShadow: currentMessage.isPaused ? '2px 2px 4px rgba(0,0,0,0.8)' : 
+              //           (currentNoise === 'blue' ? '0 0 12px rgba(255,255,255,0.8)' : 'none'),
               whiteSpace: 'normal', // Allow text to wrap
               wordWrap: 'break-word', // Break long words if needed
               lineHeight: '4.2vw', // Adjust line spacing
